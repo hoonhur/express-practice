@@ -3,8 +3,14 @@ const app = express();
 const fs = require("fs");
 const template = require("./lib/template.js");
 const path = require("path");
+const bodyParser = require("body-parser");
 const sanitizeHtml = require("sanitize-html");
 const qs = require("querystring");
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+// parse application/json
+// app.use(bodyParser.json())
 
 app.get("/", (req, res) => {
   fs.readdir("./data", (err, filelists) => {
@@ -72,21 +78,12 @@ app.get("/add", (req, res) => {
 });
 
 app.post("/add", (req, res) => {
-  let body = "";
-  req.on("data", (data) => {
-    body = body + data;
-    // too much POST data, kill the connection!
-    //1e6 === 1 * Math.pow(10,6) === 1 * 1000000 ~~~ 1MB
-    if (body.length > 1e6) req.connection.destroy();
-  });
-  req.on("end", () => {
-    let post = qs.parse(body);
-    let product = post.product;
-    let description = post.description;
-    fs.writeFile(`data/${product}`, description, "utf8", (err) => {
-      if (err) throw err;
-      res.redirect(`/page/${product}`);
-    });
+  let post = req.body;
+  let product = post.product;
+  let description = post.description;
+  fs.writeFile(`data/${product}`, description, "utf8", (err) => {
+    if (err) throw err;
+    res.redirect(`/page/${product}`);
   });
 });
 
@@ -113,64 +110,27 @@ app.get("/update/:pageId", (req, res) => {
 });
 
 app.post("/update", (req, res) => {
-  let body = "";
-  req.on("data", (data) => {
-    body = body + data;
-    if (body.length > 1e6) req.connection.destroy();
-  });
-  req.on("end", () => {
-    let post = qs.parse(body);
-    let id = post.id;
-    let product = post.product;
-    let description = post.description;
-    fs.rename(`data/${id}`, `data/${product}`, (err) => {
+  let post = req.body;
+  let id = post.id;
+  let product = post.product;
+  let description = post.description;
+  fs.rename(`data/${id}`, `data/${product}`, (err) => {
+    if (err) throw err;
+    fs.writeFile(`data/${product}`, description, "utf8", (err) => {
       if (err) throw err;
-      fs.writeFile(`data/${product}`, description, "utf8", (err) => {
-        if (err) throw err;
-        res.redirect(`/page/${product}`);
-      });
+      res.redirect(`/page/${product}`);
     });
   });
 });
 
 app.post("/delete", (req, res) => {
-  let body = "";
-  req.on("data", (data) => {
-    body = body + data;
-    if (body.length > 1e6) req.connection.destroy();
-  });
-  req.on("end", () => {
-    let post = qs.parse(body);
-    let id = post.id;
-    let filteredId = path.parse(id).base;
-    fs.unlink(`data/${filteredId}`, (err) => {
-      if (err) throw err;
-      res.redirect(`/`);
-    });
+  let post = req.body;
+  let id = post.id;
+  let filteredId = path.parse(id).base;
+  fs.unlink(`data/${filteredId}`, (err) => {
+    if (err) throw err;
+    res.redirect(`/`);
   });
 });
 
 app.listen(3000, () => console.log("example app listening on port 3000"));
-
-// let http = require("http");
-// let url = require("url");
-
-// let app = http.createServer((request, response) => {
-//   let _url = request.url;
-//   let queryData = url.parse(_url, true).query;
-//   let pathname = url.parse(_url, true).pathname;
-//   if (pathname === "/") {
-//     if (queryData.id === undefined) {
-//     });
-//     } else {
-//     } else if (pathname === "/add") {
-//   } else if (pathname === "/add_process") {
-//   } else if (pathname === "/update") {
-//   } else if (pathname === "/update_process") {
-//   } else if (pathname === "/delete_process") {
-//   } else {
-//     response.writeHead(404);
-//     response.end("Not found");
-//   }
-// });
-// app.listen(3000);
