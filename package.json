@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/hoonhur/node.js-practice#readme",
   "dependencies": {
+    "express": "^4.17.1",
     "sanitize-html": "^2.3.0"
   }
 }
