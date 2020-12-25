@@ -5,11 +5,14 @@ const template = require("./lib/template.js");
 const path = require("path");
 const bodyParser = require("body-parser");
 const sanitizeHtml = require("sanitize-html");
+const compression = require("compression");
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 // app.use(bodyParser.json())
+
+app.use(compression());
 
 app.get("/", (req, res) => {
   fs.readdir("./data", (err, filelists) => {
