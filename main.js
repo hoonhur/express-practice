@@ -5,7 +5,6 @@ const template = require("./lib/template.js");
 const path = require("path");
 const bodyParser = require("body-parser");
 const sanitizeHtml = require("sanitize-html");
-const qs = require("querystring");
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
