@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const sanitizeHtml = require("sanitize-html");
 const compression = require("compression");
 
+app.use(express.static("public"));
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
     `<div id="article">
         <h2>${title}</h2>
         <p>${description}</p>
+        <img src="/images/pompoms.jpg" style="width: 300px">
       </div>`,
     `<a href='/add'>Add Product</a>`
   );
