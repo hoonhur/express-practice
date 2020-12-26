@@ -40,30 +40,34 @@ app.get("/", (req, res) => {
   res.send(HTML);
 });
 
-app.get("/page/:pageId", (req, res) => {
+app.get("/page/:pageId", (req, res, next) => {
   let filteredId = path.parse(req.params.pageId).base;
   fs.readFile(`data/${filteredId}`, "utf8", function (err, description) {
-    let title = filteredId;
-    let sanitizedTitle = sanitizeHtml(title);
-    let sanitizedDescription = sanitizeHtml(description, {
-      allowedTags: ["h1"],
-    });
-    let list = template.list(req.list);
-    let HTML = template.HTML(
-      sanitizedTitle,
-      list,
-      `<div id="article">
-          <h2>${sanitizedTitle}</h2>
-          <p>${sanitizedDescription}</p>
-        </div>`,
-      `<a href='/add'>Add Product</a>
-        <a href='/update/${sanitizedTitle}'>Update</a>
-        <form action="/delete" method="post" onsubmit="alert('Product will be deleted')">
-          <input type='hidden' name="id" value='${sanitizedTitle}'>
-          <input type='submit' value='Delete'>
-        </form>`
-    );
-    res.send(HTML);
+    if (err) {
+      next(err);
+    } else {
+      let title = filteredId;
+      let sanitizedTitle = sanitizeHtml(title);
+      let sanitizedDescription = sanitizeHtml(description, {
+        allowedTags: ["h1"],
+      });
+      let list = template.list(req.list);
+      let HTML = template.HTML(
+        sanitizedTitle,
+        list,
+        `<div id="article">
+            <h2>${sanitizedTitle}</h2>
+            <p>${sanitizedDescription}</p>
+          </div>`,
+        `<a href='/add'>Add Product</a>
+          <a href='/update/${sanitizedTitle}'>Update</a>
+          <form action="/delete" method="post" onsubmit="alert('Product will be deleted')">
+            <input type='hidden' name="id" value='${sanitizedTitle}'>
+            <input type='submit' value='Delete'>
+          </form>`
+      );
+      res.send(HTML);
+    }
   });
 });
 
@@ -135,6 +139,15 @@ app.post("/delete", (req, res) => {
     if (err) throw err;
     res.redirect(`/`);
   });
+});
+
+app.use((req, res, next) => {
+  res.status(404).send("Sorry cant find that!");
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(505).send("Something broke!");
 });
 
 app.listen(3000, () => console.log("example app listening on port 3000"));
