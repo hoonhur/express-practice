@@ -6,6 +6,9 @@ const compression = require("compression");
 const productRouter = require("./routes/product");
 const indexRouter = require("./routes/index");
 
+const helmet = require("helmet");
+app.use(helmet());
+
 app.use(express.static("public"));
 
 // parse application/x-www-form-urlencoded`;
