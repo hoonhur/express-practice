@@ -9,7 +9,7 @@ const indexRouter = require("./routes/index");
 const helmet = require("helmet");
 app.use(helmet());
 
-app.use(express.static("public"));
+app.use(express.static(__dirname + "/public"));
 
 // parse application/x-www-form-urlencoded`;
 app.use(bodyParser.urlencoded({ extended: false }));
